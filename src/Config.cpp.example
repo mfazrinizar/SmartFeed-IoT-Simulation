@@ -1,0 +1,22 @@
+#include "Config.h"
+#include <Arduino.h>
+
+const char *DEVICE_ID = nullptr;
+const char *SERVER_URL = nullptr;
+const char *WS_URL = nullptr;
+const char *API_KEY = nullptr;
+const char *WIFI_SSID = nullptr;
+const char *WIFI_PASSWORD = nullptr;
+const int *TIMEZONE = nullptr;
+int timezoneValue = 0;
+
+void loadConfig()
+{
+    DEVICE_ID = "";
+    SERVER_URL = "http://host.wokwi.internal:3000"; 
+    WS_URL = "ws://host.wokwi.internal:3000";
+    API_KEY = "";
+    WIFI_SSID = "";
+    timezoneValue = 0;
+    TIMEZONE = &timezoneValue;
+}
