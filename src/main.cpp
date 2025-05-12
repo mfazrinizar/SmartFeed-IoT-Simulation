@@ -103,7 +103,7 @@ void loop()
   static int lastTriggeredHour = -1;
   static int lastTriggeredMinute = -1;
 
-  if (millis() - lastScheduleCheck > 5000)
+  if (millis() - lastScheduleCheck > 8000)
   {
     lastScheduleCheck = millis();
     DateTime now = rtc.now();
@@ -121,7 +121,7 @@ void loop()
     Serial.println(now.second());
 
     now = now + TimeSpan((*TIMEZONE) * 3600);
-    
+
     Serial.print("Current time: ");
     Serial.print(now.hour());
     Serial.print(":");

@@ -26,4 +26,5 @@ void triggerFeeding(const String &action, const String &historyId) {
 
   postFeedLevel(newFeedLevel, historyId);
   showStatus((long)newFeedLevel, "FED (" + action + ")");
+  delay(3000);
 }
