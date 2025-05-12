@@ -70,35 +70,71 @@ void loop()
   wsClient.poll();
 
   static unsigned long lastFeedCheck = 0;
-  const long feedInterval = 10000;
+  const long feedInterval = 5000;
+  static double lastUltrasonicReading = -100.0;
   static double lastReportedFeedLevel = -1.0;
+
   if (millis() - lastFeedCheck > feedInterval)
   {
     lastFeedCheck = millis();
-    double newFeedLevel = getFeedLevelFromHeight();
-    String status = (newFeedLevel < foodLevelThreshold) ? "LOW" : "OK";
-    showStatus((long)newFeedLevel, status);
-    if (fabs(newFeedLevel - lastReportedFeedLevel) > 0.5)
+    double ultrasonicReading = readFeedLevelPreciseCustomized();
+
+    double newDistance = getLastUltrasonicDistance();
+
+    if (fabs(newDistance - lastUltrasonicReading) > 0.1)
     {
-      postFeedLevel(newFeedLevel);
-      lastReportedFeedLevel = newFeedLevel;
+      lastUltrasonicReading = newDistance;
+      setFeedHeight(newDistance);
     }
   }
 
+  double newFeedLevel = getFeedLevelFromHeightPrecise();
+  String status = (newFeedLevel < foodLevelThreshold) ? "LOW" : "OK";
+  showStatus((long)newFeedLevel, status);
+
+  if (fabs(newFeedLevel - lastReportedFeedLevel) > 0.5)
+  {
+    postFeedLevel(newFeedLevel);
+    lastReportedFeedLevel = newFeedLevel;
+  }
+
   static uint32_t lastScheduleCheck = 0;
+  static int lastTriggeredDay = -1;
+  static int lastTriggeredHour = -1;
   static int lastTriggeredMinute = -1;
+
   if (millis() - lastScheduleCheck > 5000)
   {
     lastScheduleCheck = millis();
     DateTime now = rtc.now();
-    now = now + TimeSpan((int)TIMEZONE * 3600);
+    Serial.print("RTC time (UTC): ");
+    Serial.print(now.year());
+    Serial.print("-");
+    Serial.print(now.month());
+    Serial.print("-");
+    Serial.print(now.day());
+    Serial.print(" ");
+    Serial.print(now.hour());
+    Serial.print(":");
+    Serial.print(now.minute());
+    Serial.print(":");
+    Serial.println(now.second());
 
+    now = now + TimeSpan((*TIMEZONE) * 3600);
+    
     Serial.print("Current time: ");
     Serial.print(now.hour());
     Serial.print(":");
     Serial.print(now.minute());
     Serial.print(":");
     Serial.println(now.second());
+
+    if (now.day() != lastTriggeredDay)
+    {
+      lastTriggeredHour = -1;
+      lastTriggeredMinute = -1;
+      lastTriggeredDay = now.day();
+    }
 
     bool triggered = false;
     for (const auto &sched : feedingSchedule)
@@ -112,10 +148,11 @@ void loop()
 
       if (now.hour() == sched.hour() && now.minute() == sched.minute())
       {
-        if (lastTriggeredMinute != now.minute())
+        if (lastTriggeredHour != now.hour() || lastTriggeredMinute != now.minute())
         {
           Serial.println("triggerFeeding(\"auto\") called!");
           triggerFeeding("auto");
+          lastTriggeredHour = now.hour();
           lastTriggeredMinute = now.minute();
         }
         triggered = true;

@@ -7,7 +7,8 @@ extern websockets::WebsocketsClient wsClient;
 
 void connectWiFi();
 void connectWebSocket();
-void postFeedLevel(long feedLevel, const String &historyId = "");
+void postFeedLevel(double feedLevel, const String &historyId = "");
+void postHistory(double feedLevel, const String &feedAction);
 void patchHistoryFeedLevel(const String &historyId, double feedLevel);
 void handleWebSocketMessage(websockets::WebsocketsMessage message);
 void postListenNotification();

@@ -32,7 +32,7 @@ void connectWiFi()
   Serial.println("\nWiFi connected");
 }
 
-void postFeedLevel(long feedLevel, const String &historyId)
+void postFeedLevel(double feedLevel, const String &historyId)
 {
   if (WiFi.status() != WL_CONNECTED)
     return;
@@ -41,9 +41,26 @@ void postFeedLevel(long feedLevel, const String &historyId)
   http.begin(url);
   addApiKeyHeader(http);
   StaticJsonDocument<128> doc;
-  doc["feedLevel"] = feedLevel;
+  doc["feedLevel"] = round(feedLevel * 100.0) / 100.0;
   if (historyId.length() > 0)
     doc["historyId"] = historyId;
+  String body;
+  serializeJson(doc, body);
+  http.POST(body);
+  http.end();
+}
+
+void postHistory(double feedLevel, const String &feedAction)
+{
+  if (WiFi.status() != WL_CONNECTED)
+    return;
+  HTTPClient http;
+  String url = String(SERVER_URL) + "/api/devices/" + DEVICE_ID + "/histories";
+  http.begin(url);
+  addApiKeyHeader(http);
+  StaticJsonDocument<128> doc;
+  doc["feedLevel"] = round(feedLevel * 100.0) / 100.0;
+  doc["feedAction"] = feedAction;
   String body;
   serializeJson(doc, body);
   http.POST(body);
@@ -84,7 +101,10 @@ void handleWebSocketMessage(WebsocketsMessage message)
       Serial.println("Received newHistory event");
       String feedAction = doc["data"]["feedAction"] | "manual";
       String historyId = doc["data"]["id"] | "";
-      triggerFeeding(feedAction, historyId);
+      if (feedAction == "manual")
+      {
+        triggerFeeding(feedAction, historyId);
+      }
     }
     else if (event == "device")
     {
@@ -102,7 +122,7 @@ void handleWebSocketMessage(WebsocketsMessage message)
           Serial.print("Updated foodLevelThreshold: ");
           Serial.println(foodLevelThreshold);
 
-          double currentFeedLevel = getFeedLevelFromHeight();
+          double currentFeedLevel = getFeedLevelFromHeightPrecise();
           String status = (currentFeedLevel < foodLevelThreshold) ? "LOW" : "OK";
           showStatus((long)currentFeedLevel, status);
         }

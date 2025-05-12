@@ -15,11 +15,13 @@ void triggerFeeding(const String &action, const String &historyId) {
   delay(1000);
   feederServo.write(0);
 
-  decreaseFeedHeight();
-  double newFeedLevel = getFeedLevelFromHeight();
+  decreaseFeedHeightPrecise();
+  double newFeedLevel = getFeedLevelFromHeightPrecise();
 
   if (action == "manual" && historyId.length() > 0) {
     patchHistoryFeedLevel(historyId, newFeedLevel);
+  } else {
+    postHistory(newFeedLevel, "auto");
   }
 
   postFeedLevel(newFeedLevel, historyId);
