@@ -64,7 +64,7 @@ double readFeedLevelPreciseCustomized() {
 }
 
 void decreaseFeedHeight() {
-  double decrease = random(10, 21) / 100.0;
+  double decrease = random(300, 501) / 100.0;
   feedHeight += decrease;
   if (feedHeight > 31)
     feedHeight = 31;
