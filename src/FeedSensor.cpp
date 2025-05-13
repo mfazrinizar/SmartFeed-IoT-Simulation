@@ -36,8 +36,8 @@ double readFeedLevelPrecise() {
   double distance = duration * 0.034 / 2.0;
   lastUltrasonicDistance = (double)distance;
   if (distance < 0.0) distance = 0.0;
-  if (distance > 8.5) distance = 8.5;
-  double level = 100.0 * (8.5 - distance) / 8.5;
+  if (distance > 31) distance = 31;
+  double level = 100.0 * (31 - distance) / 31;
   level = constrain(level, 0.0, 100.0);
   return level;
 }
@@ -53,7 +53,7 @@ double readFeedLevelPreciseCustomized() {
   lastUltrasonicDistance = (double)distance;
 
   const double D_min = 2.0;   
-  const double D_empty = 8.5;  
+  const double D_empty = 31;  
 
   if (distance < D_min) distance = D_min;
   if (distance > D_empty) distance = D_empty;
@@ -66,13 +66,13 @@ double readFeedLevelPreciseCustomized() {
 void decreaseFeedHeight() {
   double decrease = random(10, 21) / 100.0;
   feedHeight += decrease;
-  if (feedHeight > 8.5)
-    feedHeight = 8.5;
+  if (feedHeight > 31)
+    feedHeight = 31;
 }
 
 void decreaseFeedHeightPrecise() {
   const double D_min = 2.0;
-  const double D_empty = 8.5;
+  const double D_empty = 31;
   if (feedHeight >= D_empty) return; 
 
   double decrease = random(10, 21) / 100.0;
@@ -84,14 +84,14 @@ void decreaseFeedHeightPrecise() {
 }
 
 double getFeedLevelFromHeight() {
-  double level = 100.0 * (8.5 - feedHeight) / 8.5;
+  double level = 100.0 * (31 - feedHeight) / 31;
   level = constrain(level, 0.0, 100.0);
   return level;
 }
 
 double getFeedLevelFromHeightPrecise() {
   const double D_min = 2.0;
-  const double D_empty = 8.5;
+  const double D_empty = 31;
 
   double distance = feedHeight;
   if (distance < D_min) distance = D_min;
